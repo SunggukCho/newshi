@@ -16,7 +16,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.Sleeper;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -91,7 +90,11 @@ public class NewsController {
 				System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
 
 				// Selenium Driver SetUp
-				driver = new ChromeDriver();
+				ChromeOptions options = new ChromeOptions();
+				options.addArguments("--headless");
+				options.addArguments("--no-sandbox");
+				options.addArguments("--disable-dev-shm-usage");
+				driver = new ChromeDriver(options);
 				try {
 					// get page
 					driver.get(url);
