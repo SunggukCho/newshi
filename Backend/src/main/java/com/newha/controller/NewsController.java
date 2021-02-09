@@ -184,14 +184,16 @@ public class NewsController {
 					service.insertHashTag(tag[j]);
 				}
 
-				for (int j = 0; j < tag.length; j++) {
+				for (int j = 1; j < tag.length; j++) {
 					String tagNo = service.selectHashTagByName(tag[j]).get(0).getTagNo();
 					service.insertPostTag(new PostTag(list.get(i).getScrapNo(), tagNo));
 				}
 			}
 			status = HttpStatus.ACCEPTED;
+			map.put("message", SUCCESS);
 		} catch (IOException e) {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			map.put("message", FAIL);
 		}
 
 		return new ResponseEntity<Map<String, String>>(map, status);
