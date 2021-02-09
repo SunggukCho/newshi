@@ -6,7 +6,12 @@
       ></v-app-bar-nav-icon>
       <v-spacer />
       <a href="/">
-        <v-img contain src="@/assets/logo.png" style="height: 50%"></v-img>
+      <div v-if="this.switchTheme == 'true'">
+        <v-img contain src="@/assets/logo_darkmode.png"></v-img>
+      </div>
+      <div v-else>
+        <v-img contain src="@/assets/logo_lightmode.png"></v-img>
+      </div>
       </a>
       <v-spacer />
       <v-icon @click="search_drawer = !search_drawer">mdi-magnify</v-icon>
@@ -22,13 +27,11 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on: tooltip }">
               <v-btn
-                color="black"
-                dark
                 v-bind="attrs"
                 v-on="{ ...tooltip, ...dialog }"
                 icon
               >
-                <v-icon>mdi-account-outline</v-icon>
+                <v-icon>mdi-account</v-icon>
               </v-btn>
             </template>
             <span>로그인</span>
@@ -51,10 +54,9 @@
       <v-menu open-on-hover offset-y v-else>
         <template v-slot:activator="{ on, attrs }">
           <v-btn color="black" dark v-bind="attrs" v-on="on" icon>
-            <v-icon>mdi-account-outline</v-icon>
+            <v-icon>mdi-account</v-icon>
           </v-btn>
         </template>
-
         <v-list>
           <v-list-item>
             <v-list-item-title
@@ -69,7 +71,6 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-
     <v-navigation-drawer right bottom v-model="search_drawer" fixed temporary>
       <v-autocomplete
         :search-input.sync="search_word"
@@ -78,7 +79,6 @@
       ></v-autocomplete>
       <br />{{ search_word }}
     </v-navigation-drawer>
-
     <v-navigation-drawer v-model="menu_drawer" absolute temporary>
       <v-list>
         <v-list-item-group>
@@ -101,25 +101,37 @@
             </v-list-item-content>
           </v-list-item>
           <v-divider />
-
           <v-list-item v-for="(menu, index) in menus" :key="index">
             <v-list-item-icon>
               <v-icon>mdi-{{ menu.icon }}</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>
-              {{ menu.title }}
-            </v-list-item-title>
+            <router-link :to="menu.router">
+              <v-list-item-title>
+                {{ menu.title }}
+              </v-list-item-title>
+            </router-link>
+            <v-switch
+              v-if="menu.title === '다크모드'"
+              v-model="switchTheme"
+              value="true"
+              @click="changeTheme()"
+              inset
+              dense
+              color="orange"
+              class="mx-3"
+            ></v-switch>
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
   </div>
 </template>
-
 <script>
 import Login from '@/components/Login.vue';
 import Join from '@/components/Join.vue';
 import { mapActions } from 'vuex';
+
+const localThemeMode = localStorage.getItem('themeMode');
 
 export default {
   components: {
@@ -140,14 +152,15 @@ export default {
       menus: [
         {
           icon: 'newspaper-variant-multiple-outline',
-          title: '내가 댓글 남긴 기사',
+          title: '나중에 볼 기사',
+          router: '/save'
         },
-        { icon: 'newspaper-plus', title: '언론사 선택하기' },
-        { icon: 'brightness-6', title: '다크모드' },
-        { icon: 'email-open-outline', title: '피드백 보내기' },
-        { icon: 'comment-processing-outline', title: '댓글 운영 정책' },
-        { icon: 'home', title: '홈페이지 바로가기' },
-        { icon: 'information-outline', title: '버전 정보' },
+        { icon: 'newspaper-plus', title: '언론사 선택하기', router: '/press' },
+        { icon: 'brightness-6', title: '다크모드', router: '' },
+        { icon: 'email-open-outline', title: '피드백 보내기', router: '/feedback' },
+        { icon: 'comment-processing-outline', title: '댓글 운영 정책', router: '/commentpolicy' },
+        { icon: 'home', title: '홈페이지 바로가기', router: '/home' },
+        { icon: 'information-outline', title: '버전 정보', router: '/version' },
       ],
       mounted_flag: false,
       dialog: null,
@@ -155,6 +168,7 @@ export default {
       isKakao: false,
       info: {},
       logged: true,
+      switchTheme: '',
     };
   },
   computed: {
@@ -200,6 +214,11 @@ export default {
     myPage() {
       this.$router.push('/mypage');
     },
+    changeTheme() {
+        // true일 때 darkmode, false일 때 lightmode
+        this.$store.dispatch('getThemeMode', this.switchTheme)
+        this.$vuetify.theme.dark = this.switchTheme
+    }
   },
   watch: {
     search_word: function() {
@@ -220,10 +239,33 @@ export default {
   created() {
     this.logged = this.$store.getters.loggedIn;
     this.member = this.$store.getters.userProfile;
+    this.switchTheme = localThemeMode;
+    localThemeMode.toString() == 'true' ? this.$vuetify.theme.dark = true: this.$vuetify.theme.dark = false; // 시작하자마자 다크테마인지 아닌지 체크
     console.log(this.logged);
     console.log(this.member);
   },
+  
 };
 </script>
 
-<style></style>
+<style>
+#switch {
+  display: inline;
+}
+.theme--dark.v-app-bar.v-toolbar.v-sheet {
+  background-color: #1E1E1E !important;
+}
+.theme--dark.v-navigation-drawer{
+  background-color: #252525 !important;
+}
+.theme--light.v-app-bar.v-toolbar.v-sheet {
+  background-color: #ffffff !important;
+}
+.v-application a {
+  text-decoration: none;
+  color: inherit !important;
+}
+.v-list-item__icon {
+  margin-left: 0px !important;
+}
+</style>
