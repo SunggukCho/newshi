@@ -75,17 +75,10 @@ public class BoardController {
 		Map<String, String> map = new HashMap<>();
 		HttpStatus status = null;
 		try {
-			System.out.println("start");
 			File f = new File(file.getOriginalFilename());
-			System.out.println("second");
-			Runtime.getRuntime().exec("chmod -R 777 " + f);
-			f.setExecutable(true);
-			f.setReadable(true);
-			f.setWritable(true);
-			System.out.println("third");
+			Runtime.getRuntime().exec("sudo chmod -R 777 ./" + f);
 			System.out.println("newFile.canWrite()>>>>>>>>>>"+ f.canWrite()); 
 			System.out.println("newFile.canExecute()>>>>>>>>>>"+ f.canExecute());
-			System.out.println("fourth");
 			file.transferTo(f);
 			s3service.uploadOnS3(file.getOriginalFilename(), f);
 			status = HttpStatus.ACCEPTED;
