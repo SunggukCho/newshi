@@ -79,7 +79,7 @@ public class BoardController {
 			Runtime.getRuntime().exec("sudo chmod -R 777 ./" + f);
 			f.setExecutable(true, false);
 			f.setReadable(true, false);
-			f.setWritable(true, fasle);
+			f.setWritable(true, false);
 			System.out.println("newFile.canWrite()>>>>>>>>>>"+ f.canWrite()); 
 			System.out.println("newFile.canExecute()>>>>>>>>>>"+ f.canExecute());
 			file.transferTo(f);
