@@ -82,6 +82,7 @@ public class BoardController {
 			map.put("message", SUCCESS); 
 		} catch (Exception e) {
 			map.put("message", FAIL);
+			e.printStackTrace();
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 		return new ResponseEntity<Map<String, String>>(map, status);
