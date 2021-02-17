@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="editor">
-      <Modal ref="ytmodal" @onConfirm="addCommand" @addFile="addImageFile" />
+      <Modal ref="ytmodal" @onConfirm="addCommand" />
       <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
         <div class="menubar">
           <button
@@ -223,6 +223,9 @@ export default {
     EditorMenuBubble,
     Modal,
   },
+  props: {
+    board: Object,
+  },
   data() {
     return {
       editor: new Editor({
@@ -250,16 +253,24 @@ export default {
       }),
       linkUrl: null,
       linkMenuIsActive: false,
-      files: [],
       title: '',
     };
+  },
+  created() {
+    console.log(this.board);
+    if (this.board !== undefined) {
+      this.editor.setContent(this.board.content);
+      this.title = this.board.title;
+    }
   },
   beforeDestroy() {
     this.editor.destroy();
   },
   methods: {
     save() {
-      this.$emit('saveData', this.editor.getHTML(), this.files, this.title);
+      console.log('타이틀!!!');
+      console.log(this.title);
+      this.$emit('saveData', this.editor.getHTML(), this.title);
     },
     showLinkMenu(attrs) {
       this.linkUrl = attrs.href;
@@ -289,9 +300,6 @@ export default {
       if (data.command !== null) {
         data.command(data.data);
       }
-    },
-    addImageFile(file) {
-      this.files.push(file);
     },
   },
 };

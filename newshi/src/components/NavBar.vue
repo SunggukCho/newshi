@@ -6,15 +6,15 @@
       ></v-app-bar-nav-icon>
       <v-spacer />
       <a href="/">
-      <div v-if="this.switchTheme == 'true'">
-        <v-img contain src="@/assets/logo_darkmode.png"></v-img>
-      </div>
-      <div v-else>
-        <v-img contain src="@/assets/logo_lightmode.png"></v-img>
-      </div>
+        <div v-if="this.switchTheme == 'true'">
+          <v-img contain src="@/assets/images/logo_darkmode.png"></v-img>
+        </div>
+        <div v-else>
+          <v-img contain src="@/assets/images/logo_lightmode.png"></v-img>
+        </div>
       </a>
       <v-spacer />
-      <v-icon @click="search_drawer = !search_drawer">mdi-magnify</v-icon>
+      <v-icon @click="toSearch">mdi-magnify</v-icon>
       <v-dialog
         v-model="dialog"
         width="500"
@@ -26,11 +26,7 @@
         <template v-slot:activator="{ on: dialog, attrs }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on: tooltip }">
-              <v-btn
-                v-bind="attrs"
-                v-on="{ ...tooltip, ...dialog }"
-                icon
-              >
+              <v-btn v-bind="attrs" v-on="{ ...tooltip, ...dialog }" icon>
                 <v-icon>mdi-account</v-icon>
               </v-btn>
             </template>
@@ -41,6 +37,7 @@
           v-if="isLogin"
           @closeDialog="closeDialog"
           @changeJoin="changeJoin"
+          @login="getLogged"
         ></Login>
         <Join
           v-else
@@ -49,37 +46,56 @@
           @closeDialog="closeDialog"
           @changeLogin="changeLogin"
           @changeKakao="changeKakao"
+          @login="getLogged"
         ></Join>
       </v-dialog>
       <v-menu open-on-hover offset-y v-else>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="black" dark v-bind="attrs" v-on="on" icon>
+          <v-btn v-bind="attrs" v-on="on" icon>
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </template>
         <v-list>
           <v-list-item>
             <v-list-item-title
-              ><v-btn @click="myPage">마이페이지</v-btn></v-list-item-title
+              ><v-btn text @click="myPage">마이페이지</v-btn></v-list-item-title
             >
           </v-list-item>
           <v-list-item>
             <v-list-item-title
-              ><v-btn @click="logout">로그아웃</v-btn></v-list-item-title
+              ><v-btn text @click="loggedOut"
+                >로그아웃</v-btn
+              ></v-list-item-title
             >
           </v-list-item>
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-navigation-drawer right bottom v-model="search_drawer" fixed temporary>
-      <v-autocomplete
-        :search-input.sync="search_word"
-        :items="autocomp_value"
-        filled
-      ></v-autocomplete>
-      <br />{{ search_word }}
-    </v-navigation-drawer>
-    <v-navigation-drawer v-model="menu_drawer" absolute temporary>
+    
+    <!-- Footer Start -->
+    <template>
+      <div class="overflow-hidden">
+        <v-bottom-navigation
+          v-model="value"
+          v-show="this.logged == false && this.close != 'true'"
+          color="#ff9800"
+          fixed
+          bottom
+        >
+          <v-btn>
+            <span>로그인/회원가입</span>
+            <v-icon>mdi-account-plus-outline</v-icon>
+          </v-btn>
+
+          <v-btn @click="closeFooter()">
+            <span>닫기</span>
+            <v-icon>mdi-close-outline</v-icon>
+          </v-btn>
+        </v-bottom-navigation>
+      </div>
+    </template>
+    <!-- Footer end -->
+    <v-navigation-drawer v-model="menu_drawer" fixed temporary>
       <v-list>
         <v-list-item-group>
           <v-list-item v-if="logged">
@@ -130,7 +146,6 @@
 import Login from '@/components/Login.vue';
 import Join from '@/components/Join.vue';
 import { mapActions } from 'vuex';
-
 const localThemeMode = localStorage.getItem('themeMode');
 
 export default {
@@ -141,25 +156,30 @@ export default {
   data() {
     return {
       menu_drawer: false,
-      search_drawer: false,
       member: {
         name: '김재성',
         id: 'kimjea23@naver.com',
         thumbnail_path: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
       },
       autocomp_value: [],
-      search_word: '',
       menus: [
         {
-          icon: 'newspaper-variant-multiple-outline',
+          icon: 'bookmark-outline',
           title: '나중에 볼 기사',
-          router: '/save'
+          router: '/save',
         },
-        { icon: 'newspaper-plus', title: '언론사 선택하기', router: '/press' },
         { icon: 'brightness-6', title: '다크모드', router: '' },
-        { icon: 'email-open-outline', title: '피드백 보내기', router: '/feedback' },
-        { icon: 'comment-processing-outline', title: '댓글 운영 정책', router: '/commentpolicy' },
-        { icon: 'home', title: '홈페이지 바로가기', router: '/home' },
+        {
+          icon: 'email-open-outline',
+          title: '피드백 보내기',
+          router: '/feedback',
+        },
+        {
+          icon: 'comment-processing-outline',
+          title: '댓글 운영 정책',
+          router: '/policy',
+        },
+        { icon: 'home-outline', title: '만든이들', router: '/whoweare' },
         { icon: 'information-outline', title: '버전 정보', router: '/version' },
       ],
       mounted_flag: false,
@@ -169,9 +189,22 @@ export default {
       info: {},
       logged: true,
       switchTheme: '',
+      items: [
+        'default',
+        'absolute',
+        'fixed',
+      ],
+      padless: false,
+      variant: 'fixed',
+      close: '',
+      value: 1,
+      alert: true,
     };
   },
   computed: {
+    getMember() {
+      return this.$store.state.userProfile;
+    },
     isFull() {
       let check = false;
       switch (this.$vuetify.breakpoint.name) {
@@ -195,7 +228,10 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['logout']),
+    ...mapActions(['logout', 'getUserInfo']),
+    toSearch() {
+      this.$router.push("/search");
+    },
     closeDialog() {
       this.dialog = !this.dialog;
       this.isLogin = true;
@@ -215,36 +251,58 @@ export default {
       this.$router.push('/mypage');
     },
     changeTheme() {
-        // true일 때 darkmode, false일 때 lightmode
-        this.$store.dispatch('getThemeMode', this.switchTheme)
-        this.$vuetify.theme.dark = this.switchTheme
+      // true일 때 darkmode, false일 때 lightmode
+      this.$store.dispatch('getThemeMode', this.switchTheme);
+      this.$vuetify.theme.dark = this.switchTheme;
+    },
+    getLogged() {
+      this.logged = true;
+      this.getUserInfo();
+      this.member = this.$store.getters.userProfile;
+      console.log(this.member);
+      this.dialog = !this.dialog;
+      this.isLogin = true;
+      this.$router.go(this.$router.currentRoute);
+    },
+    loggedOut() {
+      this.logged = false;
+      this.logout();
+      this.member = {};
+      this.$router.go(this.$router.currentRoute);
+    },
+    closeFooter(){
+      localStorage.setItem('closeFooter', true);
+      this.close = 'true';
     }
   },
   watch: {
-    search_word: function() {
-      console.log('검색어 변경');
-
-      if (this.search_word == undefined) return;
-
-      if (this.search_word == '') this.autocomp_value = [];
-      else if (this.search_word.charAt(0) == '#') {
-        // 태그에 접근하는 axios
-        this.autocomp_value = ['#경제', '#시사', '#IT', '#감성'];
-      } else {
-        // 큐레이터에 접근하는 axios
-        this.autocomp_value = ['사람1', '사람2', '사람3', '감재성'];
-      }
+    getMember: function(val) {
+      this.member = val;
     },
   },
   created() {
-    this.logged = this.$store.getters.loggedIn;
-    this.member = this.$store.getters.userProfile;
+    if (
+      localStorage.getItem('access-token') === null ||
+      localStorage.getItem('access-token') === '' ||
+      localStorage['access-token'] === undefined
+    ) {
+      this.logged = false;
+      this.member = {};
+    } else {
+      this.logged = true;
+      this.member = this.$store.getters.userProfile;
+      if (this.member === null || this.member.id == undefined) {
+        this.getUserInfo();
+      }
+    }
     this.switchTheme = localThemeMode;
-    localThemeMode.toString() == 'true' ? this.$vuetify.theme.dark = true: this.$vuetify.theme.dark = false; // 시작하자마자 다크테마인지 아닌지 체크
-    console.log(this.logged);
-    console.log(this.member);
+    if (localThemeMode == null) this.$vuetify.theme.dark = false;
+    else
+      localThemeMode.toString() == 'true'
+        ? (this.$vuetify.theme.dark = true)
+        : (this.$vuetify.theme.dark = false); // 시작하자마자 다크테마인지 아닌지 체크
+    this.close = localStorage.getItem('closeFooter');
   },
-  
 };
 </script>
 
@@ -253,9 +311,9 @@ export default {
   display: inline;
 }
 .theme--dark.v-app-bar.v-toolbar.v-sheet {
-  background-color: #1E1E1E !important;
+  background-color: #1e1e1e !important;
 }
-.theme--dark.v-navigation-drawer{
+.theme--dark.v-navigation-drawer {
   background-color: #252525 !important;
 }
 .theme--light.v-app-bar.v-toolbar.v-sheet {
@@ -267,5 +325,8 @@ export default {
 }
 .v-list-item__icon {
   margin-left: 0px !important;
+}
+.v-footer{
+  padding: 0 !important;
 }
 </style>

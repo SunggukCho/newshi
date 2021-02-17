@@ -1,15 +1,7 @@
 <template>
-  <v-dialog v-model="addDialog" fullscreen>
+  <v-dialog v-model="addDialog" fullscreen v-if="isLogged">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        color="#fcbf49"
-        fixed
-        bottom
-        right
-        fab
-        v-bind="attrs"
-        v-on="on"
-      >
+      <v-btn color="#fcbf49" fixed bottom right fab v-bind="attrs" v-on="on">
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
     </template>
@@ -121,6 +113,16 @@ export default {
         (response) => {
           if (response.data.message === 'success') {
             alert('포스트 생성에 성공하셨습니다.');
+            let no = response.data.postNo;
+            this.addDialog = false;
+            this.$router.push({
+              name: 'Link',
+              params: {
+                postNo: no,
+                postName: this.postName,
+                tags: this.post[0].tags,
+              },
+            });
           } else {
             alert('포스트 생성에 실패하셨습니다.');
           }
@@ -144,6 +146,17 @@ export default {
       };
       this.post.splice(index, 1, news);
       console.log(this.post[index]);
+    },
+  },
+  computed: {
+    isLogged() {
+      if (
+        localStorage['access-token'] === undefined ||
+        localStorage['access-token'] === null ||
+        localStorage['access-token'] === ''
+      )
+        return false;
+      else return true;
     },
   },
 };

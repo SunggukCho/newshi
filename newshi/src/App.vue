@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <nav-bar></nav-bar>
-    <br /><br /><br />
+    <br /><br />
     <router-view></router-view>
     <AddNews></AddNews>
   </v-app>
@@ -12,7 +12,10 @@ import NavBar from './components/NavBar.vue';
 import AddNews from './components/AddNews.vue';
 
 export default {
-  components: { NavBar, AddNews },
+  components: { 
+    NavBar, 
+    AddNews, 
+  },
 };
 </script>
 <style>

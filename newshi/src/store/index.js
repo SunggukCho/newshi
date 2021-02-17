@@ -20,12 +20,12 @@ const store = new Vuex.Store({
     },
     SET_THEME_MODE(state, themeMode) {
       state.themeMode = themeMode;
-    }
+    },
   },
   actions: {
-    getThemeMode(context, mode){
-      store.commit('SET_THEME_MODE', mode)
-      localStorage.setItem('themeMode', mode)
+    getThemeMode(context, mode) {
+      store.commit('SET_THEME_MODE', mode);
+      localStorage.setItem('themeMode', mode);
     },
     getUserInfo({ commit }) {
       if (localStorage['access-token'] && localStorage['access-token'] !== '') {
@@ -34,14 +34,26 @@ const store = new Vuex.Store({
           (response) => {
             if (response.data.message === 'success') {
               let user = response.data['userInfo'];
+              if (user.thumbnail_path == null) {
+                user.thumbnail_path =
+                  'https://newha.s3.us-east-2.amazonaws.com/default-avatar.png';
+              }
               commit('SET_USER', user);
             } else {
               this.isLoginError = true;
+
+              localStorage.clear();
+              commit('SET_USER', null);
+              this.$router.push('/');
             }
           },
           (error) => {
             console.error(error);
-            alert('회원정보를 가져오지 못했습니다.');
+            alert('로그인 유지기간이 만료되었습니다. 다시 로그인해주세요');
+
+            localStorage.clear();
+            commit('SET_USER', null);
+            this.$router.go(this.$router.currentRoute);
           }
         );
       }

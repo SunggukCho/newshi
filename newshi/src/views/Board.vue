@@ -35,23 +35,28 @@
       </v-col>
     </v-row>
     <v-row v-if="isMyPage"><v-btn @click="addBoard">게시글 등록</v-btn></v-row>
-    <v-row no-gutters>
+    <v-row no-gutters v-if="hasList">
       <v-col>
         <BoardInfo
           v-for="(board, index) in list"
           :key="index"
           :board="board"
           :num="index"
+          :member="member"
+          :isMain="true"
           @delBoard="removeBoard"
         ></BoardInfo>
       </v-col>
+    </v-row>
+    <v-row no-gutters v-else>
+      <h2>게시글이 없습니다.</h2>
     </v-row>
   </v-container>
 </template>
 
 <script>
 import BoardInfo from '@/components/BoardInfo.vue';
-import { getInfo } from '@/api/user.js';
+import { sidebarUser } from '@/api/user.js';
 import { boardList, boardDelete } from '@/api/board.js';
 
 export default {
@@ -63,6 +68,8 @@ export default {
       member: {},
       isMyPage: false,
       list: [],
+      hasList: false,
+      curator: '',
     };
   },
   methods: {
@@ -90,15 +97,29 @@ export default {
     },
   },
   created() {
-    let curator = this.$route.params.id;
+    this.curator = this.$route.params.id;
     //유저 정보 받아오는 axios
-    getInfo(
-      curator,
+    sidebarUser(
+      this.curator,
       (response) => {
-        if (response.data.message === 'success') {
-          this.member = response.data.userInfo;
+        if (response.status >= 200 && response.status < 300) {
+          this.member = {
+            id: this.curator,
+            name: response.data['name'],
+            userNo: response.data['userNo'],
+            thumbnail_path: response.data['thumbnail_path'],
+          };
+
+          if (this.member.id === localStorage['id']) {
+            console.log(this.member.id);
+            console.log(localStorage['id']);
+            this.isMyPage = true;
+          } else {
+            this.isMyPage = false;
+          }
         } else {
           alert('큐레이터의 데이터를 받아오는데 실패했습니다.');
+          this.$router.push(`/channel/${this.curator}`);
         }
       },
       (error) => {
@@ -106,17 +127,19 @@ export default {
         alert('큐레이터의 데이터를 받아오는 중 에러가 발생했습니다.');
       }
     );
-    if (this.member.id === localStorage.id) {
-      this.isMyPage = true;
-    }
 
     boardList(
-      curator,
+      this.curator,
       (response) => {
-        if (response.data.message === 'success') {
-          this.list = response.data;
-        } else {
-          alert('게시판 목록을 받아오는데 실패했습니다.');
+        if (response.status >= 200 && response.status < 300) {
+          if (response.data[0].message === '게시글이 없습니다.') {
+            this.hasList = false;
+            console.log(this.hasList);
+          } else {
+            this.hasList = true;
+            console.log(response.data);
+            this.list = response.data;
+          }
         }
       },
       (error) => {
