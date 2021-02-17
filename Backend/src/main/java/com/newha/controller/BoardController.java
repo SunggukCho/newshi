@@ -76,12 +76,6 @@ public class BoardController {
 		HttpStatus status = null;
 		try {
 			File f = new File(file.getOriginalFilename());
-			Runtime.getRuntime().exec("sudo chmod -R 777 ./" + f);
-			f.setExecutable(true, false);
-			f.setReadable(true, false);
-			f.setWritable(true, false);
-			System.out.println("newFile.canWrite()>>>>>>>>>>"+ f.canWrite()); 
-			System.out.println("newFile.canExecute()>>>>>>>>>>"+ f.canExecute());
 			file.transferTo(f);
 			s3service.uploadOnS3(file.getOriginalFilename(), f);
 			status = HttpStatus.ACCEPTED;
