@@ -13,7 +13,7 @@
                 <v-card-actions>
                 <v-chip-group
                   v-model="tags"
-                  active-class="yellow --text"
+                  active-class="green accent-1 --text"
                   column
                   multiple
                 >
@@ -34,8 +34,6 @@
               <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="primary"
-                    dark
                     v-bind="attrs"
                     v-on="on"
                   >
@@ -60,8 +58,10 @@
             <div class="d-flex justify-center">
               <v-dialog v-model="dialog">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-avatar size="150px" v-bind="attrs" v-on="on">
-                    <v-img :src="member.thumbnail_path"></v-img>
+                  <v-avatar class="elevation-13" size="160px">
+                    <v-avatar size="150px" v-bind="attrs" v-on="on">
+                      <v-img :src="member.thumbnail_path"></v-img>
+                    </v-avatar>
                   </v-avatar>
                 </template>
               <v-card>
@@ -82,11 +82,11 @@
         <p @click="toChannel(member.id)" style="cursor: pointer">{{member.id}}</p></div>
       
       <v-container class="mt-8">
-        <v-row>
+        <v-row >
           <v-col></v-col>
-          <v-col class="d-flex justify-center" cols="8">
-            <div>
-              <v-btn v-for="(hashtag, index) in hashtags" :key="index" text style="font-size:125%" color="#646464" @click="toSearch(hashtag)">#{{hashtag}}</v-btn>
+          <v-col cols="8">
+            <div class="d-flex justify-center" v-for="(hashtag, index) in hashtags" :key="index" >
+              <v-btn class="text-h6 font-weight-light ma-1" text color="#646464" @click="toSearch(hashtag)">#{{hashtag}}</v-btn>
             </div>
           </v-col>
           <v-col></v-col>
@@ -166,7 +166,7 @@ export default {
       axios.delete(API_BASE_URL + 'delete', {params: { id: this.member.id }})
       .then(() => {
         this.logout();
-        this.$router.go(this.$router.currentRoute);
+        window.location.reload();
         // this.$router.push('/');
       })
     },
@@ -184,7 +184,7 @@ export default {
       console.log(id);
       axios.post(API_BASE_URL + 'subscdelete', frm, { headers: { 'Content-Type': 'multipart/form-data' }})
       .then(() => {
-        this.$router.go(this.$router.currentRoute);
+        window.location.reload();
       })
     },
     modifyTags(){
@@ -194,10 +194,10 @@ export default {
         params.append("list",tag_dict[tag]);
       });
       console.log(this.member.id);
-      axios.get(API_BASE_URL + 'tagListUpdate', 
+      axios.get('http://localhost:8080/tagListUpdate', 
       { params: params },
     ).then(() => { 
-      this.$router.go(this.$router.currentRoute);
+      window.location.reload();
       }) .catch((error) => { 
         // 예외 처리 
         console.log(error);
@@ -221,9 +221,9 @@ export default {
             var frm = new FormData();
             frm.append("id", this.member.id);
             frm.append("thumbnail_path", this.imageSrc);
-            axios.post(API_BASE_URL + 'upload', frm, { headers: { 'Content-Type': 'multipart/form-data' }})
+            axios.post('http://localhost:8080/upload', frm, { headers: { 'Content-Type': 'multipart/form-data' }})
             .then(() => {
-              this.$router.go(this.$router.currentRoute);
+              window.location.reload();
             })
           } else {
             alert('큐레이터의 데이터를 받아오는데 실패했습니다.');
@@ -236,7 +236,7 @@ export default {
       );
     },
     getFollowers() {
-      axios.get(API_BASE_URL + 'subscribe', 
+      axios.get('http://localhost:8080/subscribe', 
       { params: { id: this.member.id } },
     ).then((response) => { 
         // 응답 처리 
@@ -253,7 +253,7 @@ export default {
       })
     },
     getTagList() {
-      axios.get(API_BASE_URL + 'tagList', 
+      axios.get('http://localhost:8080/tagList', 
       { params: { id: this.member.id } },
     ).then((response) => { 
       var hashtags = response.data;
