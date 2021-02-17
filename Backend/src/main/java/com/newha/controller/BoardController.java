@@ -84,7 +84,7 @@ public class BoardController {
 			f.setWritable(true);
 			System.out.println("third");
 			System.out.println("newFile.canWrite()>>>>>>>>>>"+ f.canWrite()); 
-			System.out.println("newFile.canExecute()>>>>>>>>>>"+ f.canExecute();
+			System.out.println("newFile.canExecute()>>>>>>>>>>"+ f.canExecute());
 			System.out.println("fourth");
 			file.transferTo(f);
 			s3service.uploadOnS3(file.getOriginalFilename(), f);
