@@ -3,7 +3,8 @@
       <v-container>
           <v-row>
               <v-col>
-                  <v-autocomplete solo @change="(event) => search(event)" 
+                  <v-autocomplete solo @change="(event) => search(event)"
+                      placeholder="#태그 혹은 큐레이터를 입력하세요." 
                       :search-input.sync="search_word" 
                       :items="autocomp_value">
                   </v-autocomplete>
@@ -35,7 +36,8 @@ export default {
     methods: {
         search(event) {
             if(event.charAt(0) == '#') {
-                this.$router.push('/search/hashtag/' + event.substring(1));
+                let page = event.substring(1).replace('/', '%2F');
+                this.$router.push('/search/hashtag/' + page);
             } else this.$router.push('/search/curator/' + event);
         }
     },
@@ -47,7 +49,6 @@ export default {
             this.curator_search_flag = false;
         }
         else if (this.search_word.charAt(0) == '#') {
-            console.log('해시태그들 axios')
             this.autocomp_value = [
         '#속보',
         '#정치',
@@ -64,14 +65,12 @@ export default {
             { params: { keyword: this.search_word } },
             ).then((response) => { 
                 let resData = response.data;
-                console.log(resData);
                 let arr = [];
                 for(let i = 0; i < resData.length; i++) {
                     if(resData[i]['name'] != undefined) {
                         arr.push(resData[i]['name']);
                     }
                 }
-                console.log(arr);
                 this.autocomp_value = arr;
             })
             

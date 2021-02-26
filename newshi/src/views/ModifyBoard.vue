@@ -14,13 +14,11 @@ export default {
   components: {
     Tiptap,
   },
-  props: {
-    board: Object,
-    member: Object,
-  },
   data() {
     return {
       time: '',
+      board: {},
+      member: {},
     };
   },
   methods: {
@@ -34,7 +32,6 @@ export default {
         content: content,
         is_notice: this.board.is_notice,
       };
-      console.log(modifiedBoard);
       boardUpdate(
         modifiedBoard,
         (response) => {
@@ -58,6 +55,8 @@ export default {
     },
   },
   created() {
+    this.board = JSON.parse(this.$route.query.board);
+    this.member = JSON.parse(this.$route.query.member);
     this.time = this.$moment(this.board.date).fromNow();
   },
 };

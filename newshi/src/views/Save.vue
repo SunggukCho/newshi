@@ -1,25 +1,43 @@
 <template>
   <v-container>
-  <h3>내일 볼 기사</h3>
+    <h3 class="mt-1">내일 볼 기사</h3>
     <div v-if="this.logged !== null">
-      <h5>그..그만 미루자...</h5>
-    <!-- <List :news-items="newsItems" /> -->
-      <v-list>
+      <v-divider></v-divider>
+      <!-- <List :news-items="newsItems" /> -->
+      <v-list v-if="newsItems.length !== 0">
         <template v-for="(newsInfo, i) in newsItems">
           <v-list-item
-            :key="newsInfo+i"
+            class="main-list"
+            :key="newsInfo + i"
             @click="move(newsInfo)"
           >
-            <v-list-item-avatar rounded >
+            <v-list-item-avatar rounded>
               <v-img :src="newsInfo.image_path" centered></v-img>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title v-html="newsInfo.title"></v-list-item-title>
-              <v-list-item-subtitle v-html="newsInfo.company"></v-list-item-subtitle>
+              <v-list-item-subtitle
+                v-html="newsInfo.company"
+              ></v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </template>
       </v-list>
+      <div v-else>
+        <v-alert
+          v-model="alert"
+          type="warning"
+          border="bottom"
+          elevation="4"
+          colored-border
+          icon="mdi-alert-octagon-outline"
+          fixed
+        >
+        <span>아직 저장한 뉴스가 없습니다.</span>
+        <span><v-icon>mdi-bookmark-outline</v-icon>버튼을 눌러 뉴스를 저장해보세요!</span>
+          
+        </v-alert>
+      </div>
     </div>
     <div v-else>
       <Alert />
@@ -42,28 +60,30 @@ export default {
     return {
       newsItems: [],
       logged: isLogged,
-    }
+    };
   },
   methods: {
-    getSaveList: function () {
-      axios.get(`${API_URL}`+'/article/savelist'+`?id=${id}`)
-      .then((res)=> {
-        this.newsItems = res.data;
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+    getSaveList: function() {
+      axios
+        .get(`${API_URL}` + 'article/savelist' + `?id=${id}`)
+        .then((res) => {
+          this.newsItems = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    move(newsInfo){
-      this.$router.push({name: 'Article', params: {newsNo: newsInfo.newsNo, newsInfo2: newsInfo} })
+    move(newsInfo) {
+      this.$router.push({
+        name: 'Article',
+        params: { newsNo: newsInfo.newsNo, newsInfo2: newsInfo },
+      });
     },
   },
   created: function() {
     this.getSaveList();
-  }
-}
+  },
+};
 </script>
 
-<style>
-
-</style>
+<style></style>

@@ -47,7 +47,7 @@ export default {
     };
   },
   methods: {
-    removeBoard(index) {
+    removeBoard() {
       boardDelete(
         this.board.boardPostNo,
         (response) => {
@@ -62,13 +62,11 @@ export default {
           alert('게시물 삭제 중 에러가 발생했습니다.');
         }
       );
-      console.log(this.list);
-      console.log(index);
     },
   },
   created() {
-    this.member = this.$route.query.member;
-    this.board = this.$route.query.board;
+    this.member = JSON.parse(this.$route.query.member);
+    this.board = JSON.parse(this.$route.query.board);
     this.num = this.$route.query.num;
   },
 };

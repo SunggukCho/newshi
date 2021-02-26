@@ -16,9 +16,10 @@
       <v-spacer />
       <v-icon @click="toSearch">mdi-magnify</v-icon>
       <v-dialog
+        style="position: fixed"
         v-model="dialog"
-        width="500"
-        height="500"
+        @keydown.esc="dialog = false"
+        width="600"
         v-if="!logged"
         :fullscreen="isFull"
         transition="dialog-top-transition"
@@ -33,6 +34,7 @@
             <span>로그인</span>
           </v-tooltip>
         </template>
+        <v-card height="435px">
         <Login
           v-if="isLogin"
           @closeDialog="closeDialog"
@@ -48,10 +50,11 @@
           @changeKakao="changeKakao"
           @login="getLogged"
         ></Join>
+        </v-card>
       </v-dialog>
-      <v-menu open-on-hover offset-y v-else>
+      <v-menu :open-on-hover="isClicked" offset-y v-else>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn v-bind="attrs" v-on="on" icon>
+          <v-btn v-bind="attrs" v-on="on" icon @click="isClicked = !isClicked">
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </template>
@@ -71,7 +74,7 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-
+    
     <!-- Footer Start -->
     <template>
       <div class="overflow-hidden">
@@ -82,7 +85,7 @@
           fixed
           bottom
         >
-          <v-btn>
+          <v-btn @click="dialog = !dialog">
             <span>로그인/회원가입</span>
             <v-icon>mdi-account-plus-outline</v-icon>
           </v-btn>
@@ -118,9 +121,11 @@
           </v-list-item>
           <v-divider />
           <v-list-item v-for="(menu, index) in menus" :key="index">
-            <v-list-item-icon>
-              <v-icon>mdi-{{ menu.icon }}</v-icon>
-            </v-list-item-icon>
+            <router-link :to="menu.router">
+              <v-list-item-icon>
+                <v-icon>mdi-{{ menu.icon }}</v-icon>
+              </v-list-item-icon>
+            </router-link>
             <router-link :to="menu.router">
               <v-list-item-title>
                 {{ menu.title }}
@@ -180,7 +185,6 @@ export default {
           router: '/policy',
         },
         { icon: 'home-outline', title: '만든이들', router: '/whoweare' },
-        { icon: 'information-outline', title: '버전 정보', router: '/version' },
       ],
       mounted_flag: false,
       dialog: null,
@@ -195,6 +199,7 @@ export default {
       close: '',
       value: 1,
       alert: true,
+      isClicked: false,
     };
   },
   computed: {
@@ -226,7 +231,6 @@ export default {
   methods: {
     ...mapActions(['logout', 'getUserInfo']),
     toChannel() {
-      // console.log(this.member.id);
       this.$router.push('/channel/' + this.member.id);
     },
     toSearch() {
@@ -259,7 +263,6 @@ export default {
       this.logged = true;
       this.getUserInfo();
       this.member = this.$store.getters.userProfile;
-      console.log(this.member);
       this.dialog = !this.dialog;
       this.isLogin = true;
       window.location.reload();
@@ -268,9 +271,7 @@ export default {
       this.logged = false;
       this.logout();
       this.member = {};
-      if (this.$router.currentRoute == '/')
-        window.location.reload();
-      else this.$router.push('/');
+      this.$router.push('/');
     },
     closeFooter() {
       localStorage.setItem('closeFooter', true);

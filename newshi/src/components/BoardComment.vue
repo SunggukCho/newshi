@@ -10,7 +10,10 @@
         @blur="!isFocus"
       >
         <v-avatar size="40px" slot="prepend">
-          <v-img :src="myInfo.thumbnail_path"></v-img>
+          <v-img
+            v-if="myInfo.thumbnail_path != undefined"
+            :src="myInfo.thumbnail_path"
+          ></v-img>
         </v-avatar>
       </v-text-field>
       <v-row class="justify-end" no-gutters v-show="isFocus">
@@ -36,7 +39,9 @@ import {
   boardCommentInsert,
   boardCommentDelete,
 } from '@/api/board.js';
+import { getInfo } from '@/api/user.js';
 import BoardCommentDetail from '@/components/BoardCommentDetail.vue';
+import { mapActions } from 'vuex';
 
 export default {
   components: {
@@ -56,6 +61,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['getUserInfo']),
     removeComment(index) {
       let comment = this.commentList.splice(index, 1);
       boardCommentDelete(
@@ -72,8 +78,6 @@ export default {
           alert('게시물의 댓글 삭제 중 에러가 발생했습니다.');
         }
       );
-      console.log(this.commentList);
-      console.log(index);
     },
     cancel() {
       this.newComment = '';
@@ -86,14 +90,11 @@ export default {
         id: localStorage['id'],
         content: this.newComment,
       };
-      console.log(comm);
       boardCommentInsert(
         comm,
         (response) => {
           if (response.status >= 200 && response.status < 300) {
             this.commentList = response.data.reverse();
-            console.log('commentList');
-            console.log(this.commentList);
           } else {
             alert('댓글 등록이 실패하였습니다.');
           }
@@ -111,6 +112,27 @@ export default {
   },
   created() {
     this.myInfo = this.$store.getters.userProfile;
+    if (this.myInfo.thumbnail_path == undefined) {
+      let id = localStorage['id'];
+      getInfo(
+        id,
+        (response) => {
+          if (response.data.message == 'success') {
+            this.myInfo = response.data['userInfo'];
+            if (this.myInfo.thumbnail_path == null) {
+              this.myInfo.thumbnail_path =
+                'https://newha.s3.us-east-2.amazonaws.com/default-avatar.png';
+            }
+          } else {
+            alert('댓글을 가져오는데 실패하였습니다.');
+          }
+        },
+        (error) => {
+          console.error(error);
+          alert('해당 게시물의 댓글을 가져오는 중 에러가 발생했습니다.');
+        }
+      );
+    }
     if (localStorage['access-token'] && localStorage['access-token'] !== '') {
       this.isLogged = true;
     }
@@ -119,8 +141,6 @@ export default {
       (response) => {
         if (response.status >= 200 && response.status < 300) {
           this.commentList = response.data.reverse();
-          console.log('commentList');
-          console.log(this.commentList);
         } else {
           alert('댓글을 가져오는데 실패하였습니다.');
         }
