@@ -133,7 +133,7 @@ export default {
       this.$router.push({name: 'Article', params: {newsNo: newsInfo.newsNo, newsInfo2: newsInfo} })
     },
     getRecommend(){
-      axios.get(`${API_URL}`+'/userrecommend'+`?id=${id}`)
+      axios.get(`${API_URL}`+'userrecommend'+`?id=${id}`)
       .then((res)=>{
         this.users = res.data;
       })
