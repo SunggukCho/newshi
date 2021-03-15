@@ -59,7 +59,7 @@ public class NewsController {
 //  window chromedriver
 //	public static String WEB_DRIVER_PATH = System.getProperty("user.dir") + "\\chromedriver_window.exe";
 //  aws 서버용 chromedriver
-	public static String WEB_DRIVER_PATH = "/home/ubuntu/s04p12a307/Backend/chromedriver_linux";
+	public static String WEB_DRIVER_PATH = "/home/ubuntu/newshi_personal/Backend/chromedriver_linux";
 	
 	private static final String SUCCESS = "success";
 	private static final String FAIL = "fail";
