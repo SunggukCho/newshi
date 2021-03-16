@@ -31,6 +31,8 @@
     
 - **슬로건**: '소셜 뉴스 큐레이션 플랫폼'
 
+- **배포**: http://13.209.219.14/
+
 - **고객여정지도**
 
     ![%5B%E1%84%83%E1%85%A2%E1%84%86%E1%85%AE%E1%86%AB%5D4%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1%20%E1%84%91%E1%85%A7%E1%86%BC%E1%84%80%E1%85%A1%E1%84%85%E1%85%B3%E1%86%AF%20%E1%84%8B%E1%85%B1%E1%84%92%E1%85%A1%E1%86%AB%20README%E1%84%8C%E1%85%A1%E1%86%A8%E1%84%89%E1%85%A5%E1%86%BC%205ef98b6a2c644b4486b6509a31eb5c72/1.jpg](README.assets/1.jpg)
@@ -124,59 +126,9 @@ $ yarn serve
 
 ## 🙈 페이지 소개
 
-[뉴스피드 메인 페이지]
+[상세 페이지 이미지 보러가기](./page_detail.md)
 
-![main](README.assets/main-1613703924841.png)
-
-[뉴스피드 메인 페이지 - 다크모드]
-
-![main_black](README.assets/main_black-1613703924841.png)
-
-[뉴스 상세 페이지]
-
-![Article](README.assets/article-1613703885289.png)
-
-![article_play](README.assets/article_play-1613703885289.png)
-
-![](README.assets/article_save-1613703924841.png)
-
-[저장한 기사 페이지]
-
-![save](README.assets/save-1613703924841.png)
-
-[검색 페이지]
-
-![search](README.assets/search-1613703924841.png)
-
-[포스트 작성 페이지]
-
-![post](README.assets/post-1613703924841.png)
-
-[포스트 성공 후 링크 공유 페이지]
-
-![post_success](README.assets/post_success-1613703924841.png)
-
-![mypage](README.assets/mypage-1613703924841.png)
-
-![tag](README.assets/tag-1613703924841.png)
-
-![mypost](README.assets/mypost-1613703924841.png)
-
-[피드백 메일 작성 페이지]
-
-![feedback](README.assets/feedback-1613703924840.png)
-
-![feedback_success](README.assets/feedback_success-1613703924841.png)
-
-[정책 페이지]
-
-![policy](README.assets/policy-1613703924841.png)
-
-[팀 & 서비스 소개 페이지]
-
-![team](README.assets/team-1613703924841.png)
-
-
+[배포 사이트 직접 살펴보기](http://13.209.219.14/)
 
 ## 📌 기술 특장점
 
